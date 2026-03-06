@@ -1,0 +1,50 @@
+# Session Context
+
+## User Prompts
+
+### Prompt 1
+
+You are a senior backend engineer.
+
+Project: AI Internet Rabbit Hole Explorer
+
+Create the database connection layer using SQLAlchemy.
+
+Requirements:
+
+- PostgreSQL connection
+- SQLAlchemy engine
+- sessionmaker
+- dependency function for FastAPI
+
+File location:
+backend/app/db/session.py
+
+Include:
+1. engine creation
+2. SessionLocal
+3. get_db() dependency function
+4. use DATABASE_URL from environment variables
+
+### Prompt 2
+
+give the status of the project, how much and what are done as of now, and what else is left of the initial definiton. also tell me at this point what is the condition of the project, what all I can do with code that you written?
+
+### Prompt 3
+
+is .env created to handle apikeys ? and what api keys are you going to use as I want only free api keys services.
+
+### Prompt 4
+
+yes
+
+### Prompt 5
+
+Explain what an application service layer is in backend architecture.
+Why should AI logic live in services instead of routers?
+What responsibilities should exploration_service.py have?
+
+### Prompt 6
+
+commit all the changes, check if .gitignore contains .env so that its not committed to git.
+

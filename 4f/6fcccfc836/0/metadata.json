@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.4.9",
+  "checkpoint_id": "4f6fcccfc836",
+  "session_id": "922a432a-6ff8-47cf-aa27-837021ae8f73",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-06T07:07:15.044200672Z",
+  "branch": "main",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "backend/.env.example",
+    "backend/app/core/config.py",
+    "backend/app/db/session.py",
+    "backend/app/integrations/gemini.py",
+    "backend/app/integrations/tavily.py",
+    "backend/requirements.txt"
+  ],
+  "agent": "Gemini CLI",
+  "turn_id": "de1edabaf104",
+  "token_usage": {
+    "input_tokens": 432241,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 313640,
+    "output_tokens": 5999,
+    "api_call_count": 35
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-06T07:07:14.888119885Z",
+    "agent_lines": 115,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 115,
+    "agent_percentage": 100
+  }
+}
