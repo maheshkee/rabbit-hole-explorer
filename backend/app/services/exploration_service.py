@@ -35,10 +35,18 @@ class ExplorationService:
 
             # 4. Create Nodes and Edges for each generated concept
             for concept_title in concepts[:5]:
+                # Avoid duplicates within the same exploration
+                existing_node = db.query(Node).filter(
+                    Node.title == concept_title,
+                    Node.exploration_id == exploration_id
+                ).first()
+                if existing_node:
+                    continue
+
                 # Create concept node
                 concept_node = Node(
                     title=concept_title,
-                    exploration_id=exploration.id
+                    exploration_id=exploration_id
                 )
                 db.add(concept_node)
                 db.flush() # Get concept_node.id
@@ -52,6 +60,7 @@ class ExplorationService:
                 db.add(edge)
 
             # 6. Commit everything to the database
+
             db.commit()
 
             # 7. Return the exploration_id and concepts
@@ -79,18 +88,31 @@ class ExplorationService:
             topic = node.title
             exploration_id = node.exploration_id
 
-            # 2. Retrieve Tavily context for the node's title
+            # 2. Calculate correct depth for the new nodes
+            parent_edge = db.query(Edge).filter(Edge.child_node_id == node_id).first()
+            new_depth = (parent_edge.depth + 1) if parent_edge else 1
+
+            # 3. Retrieve Tavily context for the node's title
             search_context = await tavily_service.get_search_context(topic)
             
-            # 3. Generate 5 related concepts using Gemini
+            # 4. Generate 5 related concepts using Gemini
             prompt = self._build_prompt(topic, search_context)
             response_text = await gemini_service.generate_content(prompt)
             concepts = self._parse_response(response_text)
 
             new_node_titles = []
             
-            # 4. Create new Node and Edge records
+            # 5. Create new Node and Edge records
             for concept_title in concepts[:5]:
+                # Avoid duplicate nodes within the same exploration
+                existing_node = db.query(Node).filter(
+                    Node.title == concept_title,
+                    Node.exploration_id == exploration_id
+                ).first()
+                
+                if existing_node:
+                    continue
+
                 # Create new node
                 new_node = Node(
                     title=concept_title,
@@ -103,12 +125,12 @@ class ExplorationService:
                 edge = Edge(
                     parent_node_id=node_id,
                     child_node_id=new_node.id,
-                    depth=1 # You might want to calculate depth relative to root later
+                    depth=new_depth
                 )
                 db.add(edge)
                 new_node_titles.append(concept_title)
 
-            # 5. Commit transaction
+            # 6. Commit transaction
             db.commit()
 
             return {
