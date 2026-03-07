@@ -25,3 +25,10 @@ def get_exploration_graph(exploration_id: int) -> Dict[str, Any]:
     response = requests.get(url)
     response.raise_for_status()
     return response.json()
+
+def expand_node(node_id: int) -> Dict[str, Any]:
+    """POST /api/v1/nodes/{node_id}/expand"""
+    url = f"{BASE_URL}/nodes/{node_id}/expand"
+    response = requests.post(url)
+    response.raise_for_status()
+    return response.json()

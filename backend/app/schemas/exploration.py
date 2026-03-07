@@ -22,3 +22,7 @@ class ExplorationGraphResponse(BaseModel):
     topic: str
     nodes: List[NodeInfo]
     edges: List[EdgeInfo]
+
+class NodeExpansionResponse(BaseModel):
+    node_id: int
+    new_nodes: List[str] = Field(..., description="List of titles of the 5 new nodes")

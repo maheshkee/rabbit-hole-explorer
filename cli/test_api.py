@@ -52,6 +52,25 @@ def test_api():
             print("✗ graph structure invalid: nodes or edges are empty")
             sys.exit(1)
             
+        # 4. Test POST /nodes/{node_id}/expand
+        print("Testing node expansion...")
+        node_id_to_expand = nodes[0]["id"]
+        expansion_result = api_client.expand_node(node_id_to_expand)
+        
+        if expansion_result.get("node_id") == node_id_to_expand and len(expansion_result.get("new_nodes", [])) == 5:
+            print("✓ node expansion working")
+        else:
+            print(f"✗ node expansion failed: {expansion_result}")
+            sys.exit(1)
+
+        # 5. Verify graph updated with new nodes and edges
+        updated_graph = api_client.get_exploration_graph(exploration_id)
+        if len(updated_graph["nodes"]) > len(nodes) and len(updated_graph["edges"]) > len(edges):
+             print("✓ graph successfully updated after expansion")
+        else:
+             print(f"✗ graph update failed: nodes {len(updated_graph['nodes'])} vs {len(nodes)}, edges {len(updated_graph['edges'])} vs {len(edges)}")
+             sys.exit(1)
+
     except Exception as e:
         print(f"✗ graph retrieval failed: {e}")
         sys.exit(1)

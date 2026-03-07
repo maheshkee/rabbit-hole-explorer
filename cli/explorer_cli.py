@@ -16,6 +16,10 @@ def main():
     graph_parser = subparsers.add_parser("graph", help="Retrieve an exploration graph")
     graph_parser.add_argument("exploration_id", type=int, help="The ID of the exploration")
 
+    # Expand command
+    expand_parser = subparsers.add_parser("expand", help="Expand an existing node")
+    expand_parser.add_argument("node_id", type=int, help="The ID of the node to expand")
+
     # Health command
     subparsers.add_parser("health", help="Check backend health")
 
@@ -30,6 +34,9 @@ def main():
             print(json.dumps(result, indent=2))
         elif args.command == "graph":
             result = api_client.get_exploration_graph(args.exploration_id)
+            print(json.dumps(result, indent=2))
+        elif args.command == "expand":
+            result = api_client.expand_node(args.node_id)
             print(json.dumps(result, indent=2))
         elif args.command == "health":
             result = api_client.get_health()

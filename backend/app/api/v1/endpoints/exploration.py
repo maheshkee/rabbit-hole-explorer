@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from app.schemas.exploration import (
     ExplorationRequest, 
     ExplorationResponse, 
-    ExplorationGraphResponse
+    ExplorationGraphResponse,
+    NodeExpansionResponse
 )
 from app.services.exploration_service import exploration_service
 from app.db.session import get_db
@@ -65,4 +66,26 @@ async def get_exploration(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred while fetching the graph: {str(e)}"
+        )
+
+@router.post("/nodes/{node_id}/expand", response_model=NodeExpansionResponse)
+async def expand_node(
+    node_id: int,
+    db: Session = Depends(get_db)
+) -> Any:
+    """
+    Expands an existing node by generating 5 more related concepts.
+    """
+    try:
+        result = await exploration_service.expand_node(node_id, db)
+        return NodeExpansionResponse(**result)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred while expanding the node: {str(e)}"
         )

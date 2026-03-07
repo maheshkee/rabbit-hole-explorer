@@ -66,6 +66,61 @@ class ExplorationService:
             # In production, we'd likely re-raise or handle more specifically
             raise e
 
+    async def expand_node(self, node_id: int, db: Session) -> Dict[str, Any]:
+        """
+        Expands an existing node by generating 5 more related concepts.
+        """
+        try:
+            # 1. Retrieve node from database
+            node = db.query(Node).filter(Node.id == node_id).first()
+            if not node:
+                raise ValueError(f"Node with ID {node_id} not found.")
+
+            topic = node.title
+            exploration_id = node.exploration_id
+
+            # 2. Retrieve Tavily context for the node's title
+            search_context = await tavily_service.get_search_context(topic)
+            
+            # 3. Generate 5 related concepts using Gemini
+            prompt = self._build_prompt(topic, search_context)
+            response_text = await gemini_service.generate_content(prompt)
+            concepts = self._parse_response(response_text)
+
+            new_node_titles = []
+            
+            # 4. Create new Node and Edge records
+            for concept_title in concepts[:5]:
+                # Create new node
+                new_node = Node(
+                    title=concept_title,
+                    exploration_id=exploration_id
+                )
+                db.add(new_node)
+                db.flush() # Get new_node.id
+                
+                # Create edge from original node to the new node
+                edge = Edge(
+                    parent_node_id=node_id,
+                    child_node_id=new_node.id,
+                    depth=1 # You might want to calculate depth relative to root later
+                )
+                db.add(edge)
+                new_node_titles.append(concept_title)
+
+            # 5. Commit transaction
+            db.commit()
+
+            return {
+                "node_id": node_id,
+                "new_nodes": new_node_titles
+            }
+
+        except Exception as e:
+            db.rollback()
+            print(f"Error in ExplorationService.expand_node: {e}")
+            raise e
+
     def _build_prompt(self, topic: str, context: str) -> str:
         """
         Constructs the prompt for Gemini.
