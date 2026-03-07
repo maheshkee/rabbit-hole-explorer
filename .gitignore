@@ -3,3 +3,8 @@ __pycache__/
 node_modules/
 venv/
 dist/
+# AI / local agent folders
+.cursor/
+.entire/
+.gemini/
+.opencode/
