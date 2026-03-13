@@ -1,11 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends, status
-from typing import Any
+from typing import Any, List
 from sqlalchemy.orm import Session
 from app.schemas.exploration import (
     ExplorationRequest, 
     ExplorationResponse, 
     ExplorationGraphResponse,
-    NodeExpansionResponse
+    NodeExpansionResponse,
+    ExplorationSummary
 )
 from app.services.exploration_service import exploration_service
 from app.db.session import get_db
@@ -40,6 +41,22 @@ async def explore_topic(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An unexpected error occurred: {str(e)}"
+        )
+
+@router.get("/explorations", response_model=List[ExplorationSummary])
+async def list_explorations(
+    db: Session = Depends(get_db)
+) -> Any:
+    """
+    List all exploration graphs.
+    """
+    try:
+        explorations = await exploration_service.list_explorations(db)
+        return explorations
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred while listing explorations: {str(e)}"
         )
 
 @router.get("/explorations/{exploration_id}", response_model=ExplorationGraphResponse)

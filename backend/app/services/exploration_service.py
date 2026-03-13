@@ -207,5 +207,19 @@ class ExplorationService:
             "edges": [{"source": e.parent_node_id, "target": e.child_node_id} for e in edges]
         }
 
+    async def list_explorations(self, db: Session) -> List[Dict[str, Any]]:
+        """
+        Lists all explorations ordered by newest first.
+        """
+        explorations = db.query(Exploration).order_by(Exploration.id.desc()).all()
+        return [
+            {
+                "id": e.id,
+                "topic": e.seed_topic,
+                "created_at": e.created_at.isoformat() if e.created_at else None
+            }
+            for e in explorations
+        ]
+
 # Instantiate for use
 exploration_service = ExplorationService()

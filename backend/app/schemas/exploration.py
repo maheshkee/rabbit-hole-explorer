@@ -26,3 +26,12 @@ class ExplorationGraphResponse(BaseModel):
 class NodeExpansionResponse(BaseModel):
     node_id: int
     new_nodes: List[str] = Field(..., description="List of titles of the 5 new nodes")
+
+class ExplorationSummary(BaseModel):
+    id: int
+    topic: str = Field(..., alias="seed_topic")
+    created_at: str
+
+    class Config:
+        from_attributes = True
+        populate_by_name = True
