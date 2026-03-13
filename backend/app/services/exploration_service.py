@@ -16,7 +16,9 @@ class ExplorationService:
             # 1. Create a new Exploration record
             exploration = Exploration(seed_topic=topic)
             db.add(exploration)
-            db.flush()  # Get exploration.id
+            db.commit()
+            db.refresh(exploration)
+            exploration_id = exploration.id
 
             # 2. Generate related concepts using Tavily + Gemini
             search_context = await tavily_service.get_search_context(topic)
@@ -27,7 +29,7 @@ class ExplorationService:
             # 3. Create a Node for the original topic
             root_node = Node(
                 title=topic,
-                exploration_id=exploration.id,
+                exploration_id=exploration_id,
                 summary=f"Root topic: {topic}"
             )
             db.add(root_node)

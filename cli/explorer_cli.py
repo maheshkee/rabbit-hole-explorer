@@ -45,7 +45,9 @@ def main():
             print("Running API tests...")
             import os
             test_path = os.path.join(os.path.dirname(__file__), "test_api.py")
-            subprocess.run([sys.executable, test_path])
+            result = subprocess.run([sys.executable, test_path], check=False)
+            if result.returncode != 0:
+                sys.exit(result.returncode)
         else:
             parser.print_help()
     except Exception as e:
