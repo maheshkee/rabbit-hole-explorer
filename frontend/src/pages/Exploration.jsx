@@ -5,6 +5,23 @@ import GraphViewer from '../components/GraphViewer';
 import { useNodesState, useEdgesState } from 'reactflow';
 import { getLayoutedElements } from '../utils/graphLayout';
 
+const buildGraphElements = (graph) => {
+  const flowNodes = graph.nodes.map((node) => ({
+    id: node.id.toString(),
+    data: { label: node.title },
+    position: { x: 0, y: 0 },
+  }));
+
+  const flowEdges = graph.edges.map((edge) => ({
+    id: `${edge.source}-${edge.target}`,
+    source: edge.source.toString(),
+    target: edge.target.toString(),
+    animated: true,
+  }));
+
+  return getLayoutedElements(flowNodes, flowEdges);
+};
+
 const Exploration = () => {
   const { id } = useParams();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -16,28 +33,7 @@ const Exploration = () => {
     try {
       const data = await getExplorationGraph(id);
       setTopic(data.topic);
-
-      // Convert backend nodes into React Flow nodes
-      const initialNodes = data.nodes.map((node) => ({
-        id: node.id.toString(),
-        data: { label: node.title },
-        position: { x: 0, y: 0 },
-      }));
-
-      // Convert backend edges into React Flow edges
-      const rfEdges = data.edges.map((edge) => ({
-        id: `${edge.source}-${edge.target}`,
-        source: edge.source.toString(),
-        target: edge.target.toString(),
-        animated: true,
-      }));
-
-      // Calculate automatic layout using Dagre
-      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-        initialNodes,
-        rfEdges,
-        'TB'
-      );
+      const { nodes: layoutedNodes, edges: layoutedEdges } = buildGraphElements(data);
 
       setNodes(layoutedNodes);
       setEdges(layoutedEdges);
@@ -50,7 +46,7 @@ const Exploration = () => {
 
   useEffect(() => {
     fetchGraph();
-  }, [id]);
+  }, [fetchGraph]);
 
   const handleNodeClick = async (event, node) => {
     console.log('Node clicked:', node);

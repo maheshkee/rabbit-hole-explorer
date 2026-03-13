@@ -1,29 +1,23 @@
 import dagre from 'dagre';
+import { Position } from 'reactflow';
 
-const nodeWidth = 172;
-const nodeHeight = 36;
+const NODE_WIDTH = 220;
+const NODE_HEIGHT = 72;
 
-/**
- * Calculates a hierarchical layout for a graph using Dagre.
- * @param {Array} nodes - React Flow nodes
- * @param {Array} edges - React Flow edges
- * @param {string} direction - Layout direction ('TB' for Top-to-Bottom, 'LR' for Left-to-Right)
- * @returns {Object} - Object containing nodes with calculated positions and the original edges
- */
-export const getLayoutedElements = (nodes, edges, direction = 'TB') => {
+export const getLayoutedElements = (nodes, edges) => {
   const dagreGraph = new dagre.graphlib.Graph();
-  dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-  dagreGraph.setGraph({ 
-    rankdir: direction,
-    nodesep: 50,
-    ranksep: 100,
-    marginx: 50,
-    marginy: 50
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
+  dagreGraph.setGraph({
+    rankdir: 'TB',
+    nodesep: 40,
+    ranksep: 80,
+    marginx: 24,
+    marginy: 24,
   });
 
   nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+    dagreGraph.setNode(node.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
   });
 
   edges.forEach((edge) => {
@@ -33,17 +27,16 @@ export const getLayoutedElements = (nodes, edges, direction = 'TB') => {
   dagre.layout(dagreGraph);
 
   const layoutedNodes = nodes.map((node) => {
-    const nodeWithPosition = dagreGraph.node(node.id);
-    
+    const position = dagreGraph.node(node.id);
+
     return {
       ...node,
       position: {
-        x: nodeWithPosition.x - nodeWidth / 2,
-        y: nodeWithPosition.y - nodeHeight / 2,
+        x: position.x - NODE_WIDTH / 2,
+        y: position.y - NODE_HEIGHT / 2,
       },
-      // Ensure source/target positions are set correctly for the layout direction
-      targetPosition: direction === 'TB' ? 'top' : 'left',
-      sourcePosition: direction === 'TB' ? 'bottom' : 'right',
+      sourcePosition: Position.Bottom,
+      targetPosition: Position.Top,
     };
   });
 
